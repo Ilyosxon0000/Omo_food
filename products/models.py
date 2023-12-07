@@ -1,3 +1,4 @@
+from collections.abc import Iterable
 from django.db import models
 from django.utils.text import slugify
 from imagekit.models import ImageSpecField
@@ -54,7 +55,7 @@ class Product(models.Model):
     subcategory = models.ForeignKey(SubCategory, related_name="products", on_delete=models.CASCADE, blank=True, null=True)
     title = models.CharField(max_length=255)
     description = models.TextField()
-    price = models.DecimalField(max_digits=1000, decimal_places=2, blank=True, null=True)
+    price = models.DecimalField(max_digits=1000, decimal_places=1000, blank=True, null=True)
     amount = models.FloatField(default=0)
     amount_measure = models.CharField(max_length=25, choices=MEASURE_TYPE, default="kg")
     created_date = models.DateTimeField(auto_now_add=True)
@@ -144,6 +145,10 @@ class Discount(models.Model):
 
     def __str__(self):
         return self.title
+    
+    def save(self,*args,**kwargs):
+        
+        return super().save(*args,**kwargs)
     
 """
 discount

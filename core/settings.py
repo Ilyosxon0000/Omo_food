@@ -54,7 +54,8 @@ INSTALLED_APPS = [
     # local apps
     'products',
     'users',
-    'conf'
+    'conf',
+    "order"
 ]
 
 MIDDLEWARE = [
@@ -122,7 +123,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Tashkent'
+# TIME_ZONE = 'UTC'
 
 USE_I18N = True
 

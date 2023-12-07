@@ -19,7 +19,7 @@ class CustomUserManager(UserManager):
 class CustomUser(AbstractUser):
     phone=models.CharField(max_length=13,default="+998901234567")
     objects = CustomUserManager()
-
+    
     def save(self,*args,**kwargs):
         if self.phone[1:].isdigit():
             return super().save(*args,**kwargs)
@@ -37,3 +37,5 @@ class Basket(models.Model):
     amount=models.IntegerField(default=1)
     created_date=models.DateTimeField(auto_now_add=True)
     updated_date=models.DateTimeField(auto_now=True)
+
+    

@@ -1,10 +1,12 @@
+from datetime import datetime,timedelta
 # rest_framework import
 from rest_framework import viewsets,status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 # django import
 from django.contrib.auth import get_user_model
-from django.shortcuts import get_object_or_404
+from django.db.models import Q
+from django.utils import timezone
 # simple jwt
 from rest_framework_simplejwt.tokens import RefreshToken
 # local app import
@@ -29,6 +31,21 @@ class CustomUserViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['post'])
     def check_token(self, request):
         return Response({'detail': 'Access token is valid'}, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['GET'])
+    def auto_delete_user(self, request, *args, **kwargs):
+        # Get the current date and time
+        current_date = timezone.now()
+        # Calculate the date one month ago
+        one_month_ago = current_date - timezone.timedelta(days=30)
+        print(datetime.now())
+        # Filter users based on last_login
+        queryset = self.filter_queryset(self.get_queryset())
+        inactive_users = queryset.filter(Q(last_login__lt=one_month_ago) | Q(last_login__isnull=True))
+        # Delete the inactive users
+        print(inactive_users)
+        inactive_users.delete()
+        return Response({"message": "Inactive users deleted successfully."}, status=status.HTTP_200_OK)
 
 class BasketViewSet(AuthModelViewSet):
     queryset=Basket.objects.all()
