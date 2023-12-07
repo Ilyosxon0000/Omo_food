@@ -1,0 +1,121 @@
+{
+  "todotree": {
+    "tree": [
+      {
+        "key": 1700653115516,
+        "children": [
+          {
+            "key": 1700653332787,
+            "children": [],
+            "todo": {
+              "content": "category",
+              "id": 1700653332787,
+              "level": "default",
+              "done": false,
+              "start": 1700653332787
+            }
+          },
+          {
+            "key": 1700653355491,
+            "children": [],
+            "todo": {
+              "content": "subcategory",
+              "id": 1700653355491,
+              "level": "default",
+              "done": false,
+              "start": 1700653355491
+            }
+          },
+          {
+            "key": 1700653379039,
+            "children": [],
+            "todo": {
+              "content": "products",
+              "id": 1700653379039,
+              "level": "default",
+              "done": false,
+              "start": 1700653379039
+            }
+          },
+          {
+            "key": 1700653388604,
+            "children": [],
+            "todo": {
+              "content": "productimage",
+              "id": 1700653388604,
+              "level": "default",
+              "done": false,
+              "start": 1700653388604
+            }
+          }
+        ],
+        "todo": {
+          "content": "PRODUCTS (CRUD)",
+          "id": 1700653115516,
+          "level": "default",
+          "done": false,
+          "start": 1700653115516
+        }
+      },
+      {
+        "key": 1700716102717,
+        "children": [],
+        "todo": {
+          "content": "ORDERS",
+          "id": 1700716102717,
+          "level": "default",
+          "done": false,
+          "start": 1700716102717
+        }
+      },
+      {
+        "key": 1700653420413,
+        "children": [],
+        "todo": {
+          "content": "USERS",
+          "id": 1700653420413,
+          "level": "default",
+          "done": false,
+          "start": 1700653420414
+        }
+      },
+      {
+        "key": 1700653447372,
+        "children": [],
+        "todo": {
+          "content": "PAYMENT",
+          "id": 1700653447372,
+          "level": "default",
+          "done": false,
+          "start": 1700653447372
+        }
+      },
+      {
+        "key": 1700653668746,
+        "children": [],
+        "todo": {
+          "content": "TELEGRAM BOT",
+          "id": 1700653668746,
+          "level": "default",
+          "done": false,
+          "start": 1700653668746
+        }
+      }
+    ],
+    "expandKeys": [
+      1700653332787
+    ],
+    "schema": "https://github.com/Saber2pr/vsc-ext-todolist/blob/master/src/api/type.ts#L3",
+    "add_mode": "bottom",
+    "virtual": false,
+    "timelines": [],
+    "showLine": false,
+    "playFontSize": 24,
+    "title": ".todo",
+    "autoSort": false,
+    "showEndTime": false,
+    "simpleMode": false,
+    "lang": "en",
+    "version": "1701787036593"
+  }
+}
