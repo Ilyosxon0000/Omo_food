@@ -41,9 +41,8 @@ class CustomUserViewSet(viewsets.ModelViewSet):
         print(datetime.now())
         # Filter users based on last_login
         queryset = self.filter_queryset(self.get_queryset())
-        inactive_users = queryset.filter(Q(last_login__lt=one_month_ago) | Q(last_login__isnull=True))
-        # Delete the inactive users
-        print(inactive_users)
+        inactive_users = queryset.filter(Q(last_login__lt=one_month_ago) | Q(last_login__isnull=True) & Q(get_orders=False))
+
         inactive_users.delete()
         return Response({"message": "Inactive users deleted successfully."}, status=status.HTTP_200_OK)
 

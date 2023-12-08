@@ -1,10 +1,7 @@
-from collections.abc import Iterable
 from django.db import models
 from django.utils.text import slugify
 from imagekit.models import ImageSpecField
 from imagekit.processors import Transpose
-from django.contrib.auth.models import User
-
 # User.objects.make_random_password()
 
 class Category(models.Model):
@@ -55,7 +52,7 @@ class Product(models.Model):
     subcategory = models.ForeignKey(SubCategory, related_name="products", on_delete=models.CASCADE, blank=True, null=True)
     title = models.CharField(max_length=255)
     description = models.TextField()
-    price = models.DecimalField(max_digits=1000, decimal_places=1000, blank=True, null=True)
+    price = models.FloatField(default=0)
     amount = models.FloatField(default=0)
     amount_measure = models.CharField(max_length=25, choices=MEASURE_TYPE, default="kg")
     created_date = models.DateTimeField(auto_now_add=True)
@@ -66,7 +63,6 @@ class Product(models.Model):
         format = 'JPEG',
         options = {'quality':30}
     )
-
 
     def check_discount(self):
         all_discount=Discount.objects.filter(is_active=True,products_status="ALL")
@@ -127,7 +123,7 @@ class Discount(models.Model):
         ("CUSTOM","CUSTOM"),
     )
     title = models.CharField(max_length=255)
-    value = models.DecimalField(max_digits=10, decimal_places=2)
+    value = models.IntegerField(default=0)
     is_active = models.BooleanField(default=True)    
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
@@ -147,9 +143,39 @@ class Discount(models.Model):
         return self.title
     
     def save(self,*args,**kwargs):
-        
+        # products status all
+        if self.products_status=="ALL":
+            products_status=Discount.objects.filter(products_status=self.products_status,is_active=True)
+            if products_status:
+                for item in products_status:
+                    item.is_active=False
+                    item.save()
+        # products status custom product
+        product=Discount.objects.filter(products_status="CUSTOM",product=self.product,is_active=True)
+        if product:
+            for item in product:
+                item.is_active=False
+                item.save()
+        # products status custom products
+        products=Discount.objects.filter(products_status="CUSTOM",products__in=self.products,is_active=True)#TODO many to many field filter
+        if products:
+            for item in products:
+                item.is_active=False
+                item.save()
+        # products status custom category
+        category=Discount.objects.filter(products_status="CUSTOM",category=self.category,is_active=True)
+        if category:
+            for item in category:
+                item.is_active=False
+                item.save()
+        # products status custom subcategory
+        subcategory=Discount.objects.filter(products_status="CUSTOM",subcategory=self.subcategory,is_active=True)
+        if subcategory:
+            for item in subcategory:
+                item.is_active=False
+                item.save()
         return super().save(*args,**kwargs)
-    
+
 """
 discount
     start date 

@@ -24,6 +24,13 @@ class CustomUser(AbstractUser):
         if self.phone[1:].isdigit():
             return super().save(*args,**kwargs)
         return ValidationError("Telefon Raqam noto'g'ri kiritilgan!")
+    
+    @property
+    def get_order(self):
+        orders=self.orders.all()
+        if orders:
+            return orders
+        return False
 
 class Location(models.Model):
     user=models.OneToOneField(get_user_model(),related_name="location",on_delete=models.CASCADE)
