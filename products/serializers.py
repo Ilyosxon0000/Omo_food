@@ -7,19 +7,11 @@ class SubCategorySerializer(serializers.ModelSerializer):
         model = models.SubCategory
         fields = "__all__"
 
-    def get_category(self, obj):
-        category = obj.category
-        data = {
-            "id": category.id,
-            "title": category.title,
-        }
-        return data
-
     def __init__(self, *args, **kwargs):
         super(SubCategorySerializer, self).__init__(*args, **kwargs)
         request = self.context.get("request", None)
         if request and request.method == "GET":
-            self.fields["category"] = serializers.SerializerMethodField("get_category")
+            self.fields["category"] = CategorySerializer(context=self.context)
 
 class CategorySerializer(serializers.ModelSerializer):
     thumbnail_image = serializers.ImageField(read_only=True)
@@ -27,14 +19,14 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Category
         fields = "__all__"
-    
+
     def __init__(self, *args, **kwargs):
         super(CategorySerializer, self).__init__(*args, **kwargs)
         request = self.context.get("request", None)
         if request and request.method == "GET":
             subcategory=request.GET.get("subcategory",False)=="true"
             if subcategory:
-                self.fields["subcategories"] = SubCategorySerializer(many=True, read_only=True)
+                self.fields["subcategories"] = SubCategorySerializer(many=True,context=self.context)
 
 class ProductSerializer(serializers.ModelSerializer):
     thumbnail_image = serializers.ImageField(read_only=True)
@@ -47,25 +39,6 @@ class ProductSerializer(serializers.ModelSerializer):
         images = obj.images.all()
         return images
 
-    def get_category(self, obj):
-        category = obj.category
-        data = {
-            "id": category.id,
-            "title": category.title,
-        }
-        return data
-
-    def get_subcategory(self, obj):
-        subcategory = obj.subcategory
-        if subcategory:
-            data = {
-                "id": subcategory.id,
-                "title": subcategory.title,
-            }
-            return data
-        else:
-            return None
-
     def __init__(self, *args, **kwargs):
         super(ProductSerializer, self).__init__(*args, **kwargs)
         request = self.context.get("request", None)
@@ -74,10 +47,10 @@ class ProductSerializer(serializers.ModelSerializer):
             self.fields["discount"] = serializers.DictField(source="check_discount")
             category=request.GET.get("category",None)=='true'
             if category:
-                self.fields["category"] = serializers.SerializerMethodField("get_category")
+                self.fields["category"] = CategorySerializer(context=self.context)
             subcategory=request.GET.get("subcategory",None)=='true'
             if subcategory:
-                self.fields["subcategory"] = serializers.SerializerMethodField("get_subcategory")
+                self.fields["subcategory"] = SubCategorySerializer(context=self.context)
             images=request.GET.get("images",None)=='true'
             if images:
                 self.fields["images"] = ProductImageSerializer(serializers.SerializerMethodField("get_images"),many=True,context=self.context)
@@ -110,3 +83,16 @@ class DiscountSerializer(serializers.ModelSerializer):
         model = models.Discount
         fields = "__all__"
 
+    def __init__(self, *args, **kwargs):
+        super(DiscountSerializer, self).__init__(*args, **kwargs)
+        request = self.context.get("request", None)
+        if request and request.method == "GET":
+            category=request.GET.get("category",None)=='true'
+            if category:
+                self.fields["category"] = CategorySerializer(many=True,context=self.context)
+            subcategory=request.GET.get("subcategory",None)=='true'
+            if subcategory:
+                self.fields["subcategory"] = SubCategorySerializer(many=True,context=self.context)
+            products=request.GET.get("products",None)=='true'
+            if products:
+                self.fields["products"] = ProductSerializer(many=True,context=self.context)

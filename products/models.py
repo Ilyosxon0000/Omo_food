@@ -1,12 +1,15 @@
+from collections.abc import Iterable
 from django.db import models
 from django.utils.text import slugify
 from imagekit.models import ImageSpecField
 from imagekit.processors import Transpose
+from django.contrib.auth.models import User
+
 # User.objects.make_random_password()
 
 class Category(models.Model):
     title = models.CharField(max_length=255, unique=True)
-    slug = models.SlugField(editable=False)
+    slug = models.SlugField(editable=False, primary_key=True)
     image = models.FileField(upload_to="images/categories/%y%m%d", blank=True, null=True)
     thumbnail_image = ImageSpecField(
         source = 'image',
@@ -21,11 +24,11 @@ class Category(models.Model):
 
     def __str__(self):
         return self.title
-    
+
 class SubCategory(models.Model):
     category = models.ForeignKey(Category, related_name="subcategories", on_delete=models.CASCADE)
     title = models.CharField(max_length=255, unique=True)
-    slug = models.SlugField(editable=False)
+    slug = models.SlugField(editable=False, primary_key=True)
     image = models.FileField(upload_to="images/subcategories/%y%m%d", blank=True, null=True)
     thumbnail_image = ImageSpecField(
         source = 'image',
@@ -93,7 +96,7 @@ class Product(models.Model):
             discount_price=discount.discount_price_product(self)
         else:
             return data
-        
+
         from .serializers import DiscountSerializer
         discount_serializer=DiscountSerializer(discount,many=False)
         data=discount_serializer.data
@@ -124,7 +127,7 @@ class Discount(models.Model):
     )
     title = models.CharField(max_length=255)
     value = models.IntegerField(default=0)
-    is_active = models.BooleanField(default=True)    
+    is_active = models.BooleanField(default=True)
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
 
@@ -133,7 +136,7 @@ class Discount(models.Model):
     products = models.ManyToManyField(Product, related_name="discount_many", blank=True)
     category = models.ManyToManyField(Category, related_name="discounts", blank=True)
     subcategory = models.ManyToManyField(SubCategory, related_name="discounts", blank=True)
-    
+
     def discount_price_product(self,product):
         price=product.price
         current_price=price-((price/100)*self.value)
@@ -141,52 +144,37 @@ class Discount(models.Model):
 
     def __str__(self):
         return self.title
-    
-    def save(self,*args,**kwargs):
-        # products status all
-        if self.products_status=="ALL":
-            products_status=Discount.objects.filter(products_status=self.products_status,is_active=True)
-            if products_status:
-                for item in products_status:
-                    item.is_active=False
-                    item.save()
-        # products status custom product
-        product=Discount.objects.filter(products_status="CUSTOM",product=self.product,is_active=True)
-        if product:
-            for item in product:
-                item.is_active=False
-                item.save()
-        # products status custom products
-        products=Discount.objects.filter(products_status="CUSTOM",products__in=self.products,is_active=True)#TODO many to many field filter
-        if products:
-            for item in products:
-                item.is_active=False
-                item.save()
-        # products status custom category
-        category=Discount.objects.filter(products_status="CUSTOM",category=self.category,is_active=True)
-        if category:
-            for item in category:
-                item.is_active=False
-                item.save()
-        # products status custom subcategory
-        subcategory=Discount.objects.filter(products_status="CUSTOM",subcategory=self.subcategory,is_active=True)
-        if subcategory:
-            for item in subcategory:
-                item.is_active=False
-                item.save()
-        return super().save(*args,**kwargs)
 
-"""
-discount
-    start date 
-    end date
-    foiz
-    products(manytomany) blank true
-    category(manytomany) blank true
-    subcategory(manytomany) blank true
-    products_status (tanlanganlarga, barcha maxsulotlarga)
-    discount_status (fixed chegirma, dinamik chegirma % )
-    
-"""
-
-
+    # def save(self,*args,**kwargs):
+    #     # products status all
+    #     if self.products_status=="ALL":
+    #         products_status=Discount.objects.filter(products_status=self.products_status,is_active=True)
+    #         if products_status:
+    #             for item in products_status:
+    #                 item.is_active=False
+    #                 item.save()
+    #     # products status custom product
+    #     product=Discount.objects.filter(products_status="CUSTOM",product=self.product,is_active=True)
+    #     if product:
+    #         for item in product:
+    #             item.is_active=False
+    #             item.save()
+    #     # products status custom products
+    #     products=Discount.objects.filter(products_status="CUSTOM",products__in=self.products,is_active=True)#TODO many to many field filter
+    #     if products:
+    #         for item in products:
+    #             item.is_active=False
+    #             item.save()
+    #     # products status custom category
+    #     category=Discount.objects.filter(products_status="CUSTOM",category=self.category,is_active=True)
+    #     if category:
+    #         for item in category:
+    #             item.is_active=False
+    #             item.save()
+    #     # products status custom subcategory
+    #     subcategory=Discount.objects.filter(products_status="CUSTOM",subcategory=self.subcategory,is_active=True)
+    #     if subcategory:
+    #         for item in subcategory:
+    #             item.is_active=False
+    #             item.save()
+    #     return super().save(*args,**kwargs)
