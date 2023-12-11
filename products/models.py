@@ -1,4 +1,3 @@
-from collections.abc import Iterable
 from django.db import models
 from django.utils.text import slugify
 from imagekit.models import ImageSpecField
@@ -69,7 +68,6 @@ class Product(models.Model):
 
     def check_discount(self):
         all_discount=Discount.objects.filter(is_active=True,products_status="ALL")
-        product_discount=self.discounts.filter(is_active=True)
         product_many_discount=self.discount_many.filter(is_active=True)
         category_discount=self.category.discounts.filter(is_active=True)
         subcategory=self.subcategory
@@ -119,6 +117,10 @@ class ProductImage(models.Model):
     def __str__(self):
         return self.product.title
 
+class DiscountManager(models.Manager):
+    def create(self, **kwargs):
+        print(kwargs)
+        return super().create(**kwargs)
 
 class Discount(models.Model):
     PRODUCTS_STATUS=(
@@ -132,10 +134,11 @@ class Discount(models.Model):
     end_date = models.DateTimeField()
 
     products_status=models.CharField(max_length=25,choices=PRODUCTS_STATUS,default="CUSTOM")
-    product = models.ForeignKey(Product, related_name="discounts", on_delete=models.CASCADE, blank=True,null=True)
     products = models.ManyToManyField(Product, related_name="discount_many", blank=True)
     category = models.ManyToManyField(Category, related_name="discounts", blank=True)
     subcategory = models.ManyToManyField(SubCategory, related_name="discounts", blank=True)
+    
+    objects=DiscountManager()
 
     def discount_price_product(self,product):
         price=product.price

@@ -53,19 +53,10 @@
           "content": "PRODUCTS (CRUD)",
           "id": 1700653115516,
           "level": "default",
-          "done": false,
-          "start": 1700653115516
-        }
-      },
-      {
-        "key": 1700716102717,
-        "children": [],
-        "todo": {
-          "content": "ORDERS",
-          "id": 1700716102717,
-          "level": "default",
-          "done": false,
-          "start": 1700716102717
+          "done": true,
+          "start": 1700653115516,
+          "focus": false,
+          "end": 1702272135399
         }
       },
       {
@@ -75,8 +66,10 @@
           "content": "USERS",
           "id": 1700653420413,
           "level": "default",
-          "done": false,
-          "start": 1700653420414
+          "done": true,
+          "start": 1700653420414,
+          "focus": false,
+          "end": 1702272137134
         }
       },
       {
@@ -86,8 +79,10 @@
           "content": "PAYMENT",
           "id": 1700653447372,
           "level": "default",
-          "done": false,
-          "start": 1700653447372
+          "done": true,
+          "start": 1700653447372,
+          "focus": false,
+          "end": 1702272137886
         }
       },
       {
@@ -97,13 +92,62 @@
           "content": "TELEGRAM BOT",
           "id": 1700653668746,
           "level": "default",
+          "done": true,
+          "start": 1700653668746,
+          "focus": false,
+          "end": 1702272138790
+        }
+      },
+      {
+        "key": 1702272140335,
+        "children": [
+          {
+            "key": 1702272158117,
+            "children": [],
+            "todo": {
+              "content": "Manager create",
+              "id": 1702272158117,
+              "level": "default",
+              "done": false,
+              "start": 1702272158117
+            }
+          }
+        ],
+        "todo": {
+          "content": "Order",
+          "id": 1702272140335,
+          "level": "default",
           "done": false,
-          "start": 1700653668746
+          "start": 1702272140335
+        }
+      },
+      {
+        "key": 1702272224986,
+        "children": [
+          {
+            "key": 1702272231809,
+            "children": [],
+            "todo": {
+              "content": "Manager create",
+              "id": 1702272231809,
+              "level": "default",
+              "done": false,
+              "start": 1702272231809
+            }
+          }
+        ],
+        "todo": {
+          "content": "Discount",
+          "id": 1702272224986,
+          "level": "default",
+          "done": false,
+          "start": 1702272224986
         }
       }
     ],
     "expandKeys": [
-      1700653332787
+      1700653332787,
+      1702272224986
     ],
     "schema": "https://github.com/Saber2pr/vsc-ext-todolist/blob/master/src/api/type.ts#L3",
     "add_mode": "bottom",
@@ -116,6 +160,6 @@
     "showEndTime": false,
     "simpleMode": false,
     "lang": "en",
-    "version": "1701787036593"
+    "version": "1702272238597"
   }
 }
