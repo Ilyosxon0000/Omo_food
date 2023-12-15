@@ -19,24 +19,18 @@ class CustomUserManager(UserManager):
 class CustomUser(AbstractUser):
     phone=models.CharField(max_length=13,default="+998901234567")
     objects = CustomUserManager()
-    
+
     def save(self,*args,**kwargs):
         if self.phone[1:].isdigit():
             return super().save(*args,**kwargs)
         return ValidationError("Telefon Raqam noto'g'ri kiritilgan!")
-    
+
     @property
     def get_order(self):
         orders=self.orders.all()
         if orders:
             return orders
         return False
-
-class Location(models.Model):
-    user=models.OneToOneField(get_user_model(),related_name="location",on_delete=models.CASCADE)
-    address=models.TextField(blank=True,null=True)
-    longitude=models.CharField(max_length=200,blank=True,null=True)
-    latitude=models.CharField(max_length=200,blank=True,null=True)
 
 class Basket(models.Model):
     user=models.ForeignKey(get_user_model(),related_name="basket_products",on_delete=models.CASCADE)
@@ -45,4 +39,5 @@ class Basket(models.Model):
     created_date=models.DateTimeField(auto_now_add=True)
     updated_date=models.DateTimeField(auto_now=True)
 
-    
+    def get_total_price(self):
+        return self.product.price*self.amount

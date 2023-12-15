@@ -2,7 +2,7 @@ from typing import Any
 from django.db import models
 from django.contrib.auth import get_user_model
 # local import
-from products.models import Product 
+from products.models import Product
 
 # Create your models here.
 
@@ -12,6 +12,11 @@ class Each_Product(models.Model):
     total_price=models.FloatField(default=0)
     created_date=models.DateTimeField(auto_now_add=True)
     updated_date=models.DateTimeField(auto_now=True)
+
+class Location(models.Model):
+    address=models.TextField(blank=True,null=True)
+    longitude=models.CharField(max_length=200,blank=True,null=True)
+    latitude=models.CharField(max_length=200,blank=True,null=True)
 
 class Order(models.Model):
     DELIVERY_STATUS=(
@@ -23,6 +28,7 @@ class Order(models.Model):
         ("NAQD","NAQD"),
         ("TO'LOV TIZIMI","TO'LOV TIZIMI")
     )
+    location=models.OneToOneField(Location,related_name="order",on_delete=models.CASCADE)
     user=models.ForeignKey(get_user_model(),related_name="orders",on_delete=models.PROTECT)
     each_products=models.ForeignKey(Each_Product,related_name="orders",on_delete=models.PROTECT)
     total_price=models.FloatField(default=0)
@@ -30,3 +36,4 @@ class Order(models.Model):
     payment_method=models.CharField(max_length=50,default="NAQD",choices=PAYMENT_METHODS)
     created_date=models.DateTimeField(auto_now_add=True)
     updated_date=models.DateTimeField(auto_now=True)
+
