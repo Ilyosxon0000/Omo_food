@@ -1,6 +1,12 @@
 from rest_framework import serializers
 from . import models
 
+class BannerSerializer(serializers.ModelSerializer):
+    thumbnail_image = serializers.ImageField(read_only=True)
+
+    class Meta:
+        model = models.Banner
+        fields = "__all__"
 class SubCategorySerializer(serializers.ModelSerializer):
     thumbnail_image = serializers.ImageField(read_only=True)
     class Meta:

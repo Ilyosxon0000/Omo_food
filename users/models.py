@@ -39,5 +39,25 @@ class Basket(models.Model):
     created_date=models.DateTimeField(auto_now_add=True)
     updated_date=models.DateTimeField(auto_now=True)
 
-    def get_total_price(self):
-        return self.product.price*self.amount
+    def get_total_price(self)->dict:
+        product=self.product
+        discount=product.check_discount()
+        data={
+            "price":self.product.price*self.amount
+        }
+        if discount():
+            data["discount_price"]=discount['product_discount_price']*self.amount
+        return data
+    
+    # @classmethod
+    # def get_total_price_all(cls,user)->dict:
+    #     basket_products=cls.objects.filter(user=user)
+    #     data={
+    #         "price":0,
+    #         "discount_price":0
+    #     }
+    #     for item in basket_products:
+    #         item_total_price=item.get_total_price()
+    #         data['price']+=item_total_price['price']
+    #         data['discount_price']+=item_total_price.get("discount_price",0)
+    #     return data

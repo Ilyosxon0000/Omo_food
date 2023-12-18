@@ -19,6 +19,10 @@ class Location(models.Model):
     latitude=models.CharField(max_length=200,blank=True,null=True)
 
 class Order(models.Model):
+    ADDRESS_STATUS=(
+        ("CITY_IN","CITY_IN"),
+        ("CITY_OUT","CITY_OUT"),
+    )
     DELIVERY_STATUS=(
         ("QABUL QILINDI","QABUL QILINDI"),
         ("YETKAZILMOQDA","YETKAZILMOQDA"),
@@ -33,6 +37,7 @@ class Order(models.Model):
     each_products=models.ForeignKey(Each_Product,related_name="orders",on_delete=models.PROTECT)
     total_price=models.FloatField(default=0)
     delivery_status=models.CharField(max_length=50,default="QABUL QILINDI",choices=DELIVERY_STATUS)
+    address_status=models.CharField(max_length=50,choices=ADDRESS_STATUS,default="CITY_IN")
     payment_method=models.CharField(max_length=50,default="NAQD",choices=PAYMENT_METHODS)
     created_date=models.DateTimeField(auto_now_add=True)
     updated_date=models.DateTimeField(auto_now=True)

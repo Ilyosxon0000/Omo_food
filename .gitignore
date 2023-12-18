@@ -3,6 +3,5 @@
 venv
 main.py
 .env
-*/migrations/*
 media/
 db.sqlite3

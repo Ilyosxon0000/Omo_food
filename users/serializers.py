@@ -34,7 +34,7 @@ class BasketSerializer(serializers.ModelSerializer):
             products=request.GET.get("products",None)=='true'
             if products:
                 self.fields["product"] = ProductSerializer(context=self.context)
-                # self.fields["total_price"] = serializers.FloatField('get_total_price')
+                # self.fields["total_price"] = serializers.FloatField(source='get_total_price')
             total_price=request.GET.get("total_price",None)=='true'
             if total_price:
-                self.fields["total_price"] = serializers.FloatField(source='get_total_price')
+                self.fields["total_price"] = serializers.DictField(source='get_total_price')
