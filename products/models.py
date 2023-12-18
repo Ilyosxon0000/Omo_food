@@ -16,7 +16,7 @@ class Banner(models.Model):
 
 class Category(models.Model):
     title = models.CharField(max_length=255, unique=True)
-    slug = models.SlugField(editable=False, primary_key=True)
+    slug = models.SlugField(editable=False)
     image = models.FileField(upload_to="images/categories/%y%m%d", blank=True, null=True)
     thumbnail_image = ImageSpecField(
         source='image',
@@ -36,7 +36,7 @@ class Category(models.Model):
 class SubCategory(models.Model):
     category = models.ForeignKey(Category, related_name="subcategories", on_delete=models.CASCADE)
     title = models.CharField(max_length=255, unique=True)
-    slug = models.SlugField(editable=False, primary_key=True)
+    slug = models.SlugField(editable=False)
     image = models.FileField(upload_to="images/subcategories/%y%m%d", blank=True, null=True)
     thumbnail_image = ImageSpecField(
         source='image',

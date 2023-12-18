@@ -3,5 +3,3 @@
 venv
 main.py
 .env
-media/
-db.sqlite3
