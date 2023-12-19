@@ -45,10 +45,10 @@ class Basket(models.Model):
         data={
             "price":self.product.price*self.amount
         }
-        if discount():
+        if discount:
             data["discount_price"]=discount['product_discount_price']*self.amount
         return data
-    
+
     # @classmethod
     # def get_total_price_all(cls,user)->dict:
     #     basket_products=cls.objects.filter(user=user)
