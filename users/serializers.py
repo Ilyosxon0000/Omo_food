@@ -1,6 +1,5 @@
 # rest framework
 from rest_framework import serializers
-from rest_framework.utils import model_meta
 # django
 from django.contrib.auth import get_user_model
 # local import

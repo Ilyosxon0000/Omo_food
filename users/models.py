@@ -45,7 +45,7 @@ class Basket(models.Model):
         data={
             "price":self.product.price*self.amount
         }
-        if discount():
+        if discount:
             data["discount_price"]=discount['product_discount_price']*self.amount
         return data
     

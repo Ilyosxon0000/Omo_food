@@ -54,7 +54,7 @@ class BasketViewSet(AuthModelViewSet):
         serializer=self.get_serializer(data=self.data)
         serializer.is_valid(raise_exception=True)
 
-        instance=Basket.objects.get_or_create(user=self.data["user"],product=self.data['product'])[0]
+        instance=Basket.objects.get_or_create(user=self.get_user(),product=self.data['product'])[0]
         instance.amount=self.data.get("amount",instance.amount)
         instance.save()
 

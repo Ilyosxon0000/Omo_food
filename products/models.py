@@ -77,10 +77,6 @@ class Product(models.Model):
         options={'quality': 30}
     )
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(args, kwargs)
-        self.discount_many = None
-
     def check_discount(self):
         all_discount = Discount.objects.filter(is_active=True, products_status="ALL")
         product_many_discount = self.discount_many.filter(is_active=True)
