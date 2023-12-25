@@ -7,6 +7,8 @@ from .models import Category, SubCategory, Product, ProductImage, Discount,Banne
 from .serializers import CategorySerializer, SubCategorySerializer, ProductSerializer, \
     ProductImageSerializer, DiscountSerializer,BannerSerializer
 from rest_framework.views import APIView
+# django
+from django.db.models import Q
 class SearchView(APIView):
     def get(self,request,*args,**kwargs):
         query=self.request.GET.get("query",None)
@@ -20,7 +22,7 @@ class SearchView(APIView):
             categories_serializer=CategorySerializer(categories,many=True,context=context)
             subcategories=SubCategory.objects.filter(title__icontains=query)
             subcategories_serializer=SubCategorySerializer(subcategories,many=True,context=context)
-            products=Product.objects.filter(title__icontains=query)
+            products=Product.objects.filter(Q(title__icontains=query)|Q(description__icontains=query)|Q(price__icontains=query))
             products_serializer=ProductSerializer(products,many=True,context=context)
             data={
                 "categories":categories_serializer.data,

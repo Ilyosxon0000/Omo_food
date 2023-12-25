@@ -1,11 +1,11 @@
 # rest import
 from rest_framework import serializers
-# django
-from django.contrib.auth import get_user_model
 # local import
 from .models import Delivery,Each_Product,Location,Order
 from users.models import Basket
 from users.serializers import CustomUserSerializer
+from products.serializers import ProductSerializer
+
 class DeliverySerializer(serializers.ModelSerializer):
     class Meta:
         model=Delivery
@@ -15,15 +15,41 @@ class Each_ProductSerializer(serializers.ModelSerializer):
         model=Each_Product
         fields="__all__"
 
+    def __init__(self, *args, **kwargs):
+        super(Each_ProductSerializer, self).__init__(*args, **kwargs)
+        request = self.context.get("request", None)
+        if request and request.method == "GET":
+            product=request.GET.get("product")=="true"
+            if product:
+                self.fields["product"] = ProductSerializer(many=False,context=self.context)
+
 class LocationSerializer(serializers.ModelSerializer):
     class Meta:
         model=Location
         fields="__all__"
 
 class OrderSerializer(serializers.ModelSerializer):
+    # delivery_status_enum=serializers.
     class Meta:
         model=Order
         fields="__all__"
+    def __init__(self, *args, **kwargs):
+        super(OrderSerializer, self).__init__(*args, **kwargs)
+        request = self.context.get("request", None)
+        if request and request.method == "GET":
+            each_products=request.GET.get("each_products")=="true"
+            if each_products:
+                self.fields["each_products"] = Each_ProductSerializer(many=True,context=self.context)
+            delivery=request.GET.get("delivery")=="true"
+            if delivery:
+                self.fields["delivery"] = DeliverySerializer(many=False,context=self.context)
+            location=request.GET.get("location")=="true"
+            if location:
+                self.fields["location"] = LocationSerializer(many=False,context=self.context)
+            user=request.GET.get("user")=="true"
+            if user:
+                self.fields["user"] = CustomUserSerializer(many=False,context=self.context)
+            
 
 class UserRegistrationSerializer(serializers.Serializer):
     first_name=serializers.CharField()
@@ -47,7 +73,7 @@ class CheckOutSerializer(serializers.Serializer):
 
         user = CustomUserSerializer(request.user, data=user, partial=True)
         user.is_valid(raise_exception=True)
-        user.save()
+        user=user.save()
 
         each_products=[]
 
@@ -63,19 +89,22 @@ class CheckOutSerializer(serializers.Serializer):
                 product=product,
                 amount=amount,
                 total_price=total_price
-            ).save()
+            )
             order_total_price+=total_price
             each_products.append(each_product.id)
             product.amount-=amount
             product.save()
+            basket_product.delete()
 
         location=LocationSerializer(data=location)
         location.is_valid(raise_exception=True)
-        location.save()
+        location=location.save()
+
+        order_total_price+=Delivery.objects.get(id=delivery).price
 
         data={
-            "location":location,
-            "user":user,
+            "location":location.id,
+            "user":user.id,
             "each_products":each_products,
             "total_price":order_total_price,
             "delivery":delivery,

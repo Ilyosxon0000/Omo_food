@@ -34,7 +34,7 @@ class Order(models.Model):
     )
     location=models.OneToOneField(Location,related_name="order",on_delete=models.PROTECT)
     user=models.ForeignKey(get_user_model(),related_name="orders",on_delete=models.PROTECT)
-    each_products=models.ForeignKey(Each_Product,related_name="orders",on_delete=models.PROTECT)
+    each_products=models.ManyToManyField(Each_Product,related_name="orders")
     total_price=models.FloatField(default=0)
     delivery_status=models.CharField(max_length=50,default="QABUL QILINDI",choices=DELIVERY_STATUS)
     delivery=models.ForeignKey(Delivery,related_name="orders",on_delete=models.PROTECT)

@@ -3,3 +3,5 @@
 venv
 main.py
 .env
+
+cspell.json

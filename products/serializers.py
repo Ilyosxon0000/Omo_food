@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from . import models
+from users.models import Basket
 
 class BannerSerializer(serializers.ModelSerializer):
     thumbnail_image = serializers.ImageField(read_only=True)
@@ -36,7 +37,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
     thumbnail_image = serializers.ImageField(read_only=True)
-
+    basket=serializers.SerializerMethodField("get_basket")
     class Meta:
         model = models.Product
         fields = "__all__"
@@ -44,6 +45,18 @@ class ProductSerializer(serializers.ModelSerializer):
     def get_images(self, obj):
         images = obj.images.all()
         return images
+    
+    def get_basket(self,obj):
+        request=self.context['request']
+        basket=Basket.objects.filter(user=request.user,product=obj)
+        data={}
+        if basket:
+            basket=basket.last()
+            data['id']=basket.id
+            data['amount']=basket.amount
+        return data
+
+
 
     def __init__(self, *args, **kwargs):
         super(ProductSerializer, self).__init__(*args, **kwargs)

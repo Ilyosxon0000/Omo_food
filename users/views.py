@@ -39,7 +39,6 @@ class CustomUserViewSet(viewsets.ModelViewSet):
         current_date = timezone.now()
         # Calculate the date one month ago
         one_month_ago = current_date - timezone.timedelta(days=30)
-        print(datetime.now())
         # Filter users based on last_login
         queryset = self.filter_queryset(self.get_queryset())
         inactive_users = queryset.filter(Q(last_login__lt=one_month_ago) | Q(last_login__isnull=True) & Q(get_orders=False))
@@ -51,6 +50,11 @@ class BasketViewSet(AuthModelViewSet):
     queryset=Basket.objects.all()
     serializer_class=BasketSerializer
 
+    def get_queryset(self):
+        if self.get_user().is_superuser:
+            return super().get_queryset()
+        return self.queryset.filter(user=self.get_user())
+
     def create(self, request, *args, **kwargs):
         serializer=self.get_serializer(data=self.data)
         serializer.is_valid(raise_exception=True)
@@ -61,3 +65,13 @@ class BasketViewSet(AuthModelViewSet):
         serializer = self.get_serializer(instance,many=False)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    
+    def partial_update(self, request, *args, **kwargs):
+        data=self.data
+        amount=data['amount']
+        if int(amount)<=0:
+            instance = self.get_object()
+            self.perform_destroy(instance)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        kwargs['partial'] = True
+        return self.update(request, *args, **kwargs)

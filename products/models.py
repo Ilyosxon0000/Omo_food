@@ -1,5 +1,9 @@
+from typing import Any
 from django.db import models
+from django.db.models.query import QuerySet
 from django.utils.text import slugify
+from django.utils import timezone
+
 from imagekit.models import ImageSpecField
 from imagekit.processors import Transpose
 
@@ -128,10 +132,14 @@ class ProductImage(models.Model):
 
 
 class DiscountManager(models.Manager):
-    def create(self, **kwargs):
-        print(kwargs)
-        return super().create(**kwargs)
-
+    def get_queryset(self) -> QuerySet:
+        date=timezone().now()
+        discount_objects=Discount.objects.filter(end_date__lt=date)
+        for item in discount_objects:
+            item.is_active=False
+            item.save()
+        # auto activate with start date
+        return super(DiscountManager, self).get_queryset()
 
 class Discount(models.Model):
     PRODUCTS_STATUS = (
