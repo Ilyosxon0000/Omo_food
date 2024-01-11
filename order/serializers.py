@@ -82,6 +82,8 @@ class CheckOutSerializer(serializers.Serializer):
         for basket_product_id in basket_products:
             basket_product=Basket.objects.get(id=basket_product_id)
             product=basket_product.product
+            if basket_product.amount>product.amount:
+                basket_product.objects.update(amount=product.amount)
             amount=basket_product.amount
             basket_total_price=basket_product.get_total_price()
             total_price=basket_total_price['discount_price'] if basket_total_price.get("discount_price", None) else basket_total_price['price']

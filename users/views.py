@@ -14,6 +14,9 @@ from .serializers import CustomUserSerializer,BasketSerializer
 from .models import Basket
 from products.models import Product
 from conf.views import AuthModelViewSet
+# drf yasg swagger
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 
 class CustomUserViewSet(viewsets.ModelViewSet):
     queryset = get_user_model().objects.all()
@@ -33,6 +36,7 @@ class CustomUserViewSet(viewsets.ModelViewSet):
     def check_token(self, request):
         return Response({'detail': 'Access token is valid'}, status=status.HTTP_200_OK)
 
+    # TODO CRONTASK monthly task
     @action(detail=False, methods=['GET'])
     def auto_delete_user(self, request, *args, **kwargs):
         # Get the current date and time
@@ -49,6 +53,43 @@ class CustomUserViewSet(viewsets.ModelViewSet):
 class BasketViewSet(AuthModelViewSet):
     queryset=Basket.objects.all()
     serializer_class=BasketSerializer
+
+    @action(detail=True,methods=['GET'])
+    def change_status(self, request, *args, **kwargs) -> Response:
+        instance=self.get_object()
+        instance.is_active=False if instance.is_active else True
+        instance.save()
+        return Response({"message":"success"})
+
+    status = openapi.Parameter('status', openapi.IN_QUERY,
+                             description="true or false",
+                             type=openapi.TYPE_STRING)
+    @swagger_auto_schema(manual_parameters=[status])
+    @action(detail=False,methods=['GET'])
+    def change_all_status(self, request, *args, **kwargs) -> Response:
+        queryset = self.filter_queryset(self.get_queryset()).filter(user=self.get_user())
+        status=request.GET.get("status")
+        if status:
+            status=True if status=="true" else False
+            for instance in queryset:
+                instance.is_active=status
+                instance.save()
+        return Response({"message":"success"})
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        data={
+            "items":serializer.data,
+            "total_price":Basket.get_total_price_all(user=self.get_user())
+        }
+        return Response(data)
 
     def get_queryset(self):
         if self.get_user().is_superuser:
@@ -68,10 +109,14 @@ class BasketViewSet(AuthModelViewSet):
     
     def partial_update(self, request, *args, **kwargs):
         data=self.data
+        instance = self.get_object()
         amount=data['amount']
+        product=instance.product
         if int(amount)<=0:
-            instance = self.get_object()
             self.perform_destroy(instance)
             return Response(status=status.HTTP_204_NO_CONTENT)
+        if int(amount)>=product.amount:
+            instance.update(amount=product.amount)
+            return Response(status=status.HTTP_200_OK)
         kwargs['partial'] = True
         return self.update(request, *args, **kwargs)

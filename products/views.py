@@ -1,6 +1,6 @@
 # rest imports
 from rest_framework.response import Response
-from rest_framework import viewsets,status
+from rest_framework import viewsets,status,permissions
 from rest_framework.decorators import action
 # Local app imports
 from .models import Category, SubCategory, Product, ProductImage, Discount,Banner
@@ -64,6 +64,7 @@ class SubCategoryViewSet(viewsets.ModelViewSet):
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    permission_classes=[permissions.IsAuthenticated]
 
 class ProductImageViewSet(viewsets.ModelViewSet):
     queryset = ProductImage.objects.all()

@@ -1,12 +1,10 @@
-from typing import Any
 from django.db import models
-from django.db.models.query import QuerySet
 from django.utils.text import slugify
-from django.utils import timezone
 
 from imagekit.models import ImageSpecField
 from imagekit.processors import Transpose
 
+from django.db.models import Q
 
 # User.objects.make_random_password()
 class Banner(models.Model):
@@ -70,7 +68,7 @@ class Product(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
     price = models.FloatField(default=0)
-    amount = models.FloatField(default=0)
+    amount = models.IntegerField(default=0)
     amount_measure = models.CharField(max_length=25, choices=MEASURE_TYPE, default="kg")
     created_date = models.DateTimeField(auto_now_add=True)
     image = models.FileField(upload_to="images/products/%y%m%d")
@@ -82,6 +80,20 @@ class Product(models.Model):
     )
 
     def check_discount(self):
+        # from django.db.models.functions import Now
+        # discount_objects=Discount.objects.filter(Q(start_date__gt=Now(),is_active=True),Q(end_date__lt=Now(),is_active=True))#start_date__lt=date,end_date__lt=date,
+        # for item in discount_objects:
+        #     item.is_active=False
+        #     item.save()
+        
+        # discount_objects=Discount.objects.filter(start_date__lte=Now(),end_date__gte=Now(),is_active=False)
+        # for item in discount_objects:
+        #     item.is_active=True
+        #     item.save()
+        from django.db.models.functions import Now
+        Discount.objects.filter(Q(start_date__gt=Now()) & Q(end_date__lt=Now()) | Q(is_active=True)).update(is_active=False)#start_date__lt=date,end_date__lt=date,
+        Discount.objects.filter(start_date__lte=Now(),end_date__gte=Now(),is_active=False).update(is_active=True)
+
         all_discount = Discount.objects.filter(is_active=True, products_status="ALL")
         product_many_discount = self.discount_many.filter(is_active=True)
         category_discount = self.category.discounts.filter(is_active=True)
@@ -101,9 +113,17 @@ class Product(models.Model):
         elif category_discount:
             discount = category_discount[0]
             discount_price = discount.discount_price_product(self)
+
         elif subcategory_discount:
             discount = subcategory_discount[0]
             discount_price = discount.discount_price_product(self)
+        elif subcategory:
+            if len(subcategory_discount)==0:
+                category_discount = self.subcategory.category.discounts.filter(is_active=True)
+                if category_discount:
+                    discount = category_discount[0]
+                    discount_price = discount.discount_price_product(self)
+                    
         else:
             return data
 
@@ -130,16 +150,9 @@ class ProductImage(models.Model):
     def __str__(self):
         return self.product.title
 
-
-class DiscountManager(models.Manager):
-    def get_queryset(self) -> QuerySet:
-        date=timezone().now()
-        discount_objects=Discount.objects.filter(end_date__lt=date)
-        for item in discount_objects:
-            item.is_active=False
-            item.save()
-        # auto activate with start date
-        return super(DiscountManager, self).get_queryset()
+# class DiscountManager(models.Manager):
+#     def get_queryset(self) -> QuerySet:
+#         return super().get_queryset()
 
 class Discount(models.Model):
     PRODUCTS_STATUS = (
@@ -157,7 +170,13 @@ class Discount(models.Model):
     category = models.ManyToManyField(Category, related_name="discounts", blank=True)
     subcategory = models.ManyToManyField(SubCategory, related_name="discounts", blank=True)
 
-    objects = DiscountManager()
+    # objects = DiscountManager()
+
+    def get_time_left(self):
+        from django.utils import timezone
+        now=timezone.now()
+        subtract=self.end_date-now
+        return subtract.total_seconds()
 
     def discount_price_product(self, product):
         price = product.price

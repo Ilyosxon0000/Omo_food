@@ -98,6 +98,7 @@ class ProductImageSerializer(serializers.ModelSerializer):
                 self.fields["product"] = serializers.SerializerMethodField("get_product")
 
 class DiscountSerializer(serializers.ModelSerializer):
+    time_left=serializers.DateTimeField(source="get_time_left")
     class Meta:
         model = models.Discount
         fields = "__all__"
